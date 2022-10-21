@@ -2,6 +2,10 @@
 
 ## This is a work in progress.
 
+## Languages/Software Used:
+
+### R (RStudio)
+
 ## Motivation:
 
 ### I like playing poker. I record my games so I can go back, analyze my decisions and improve my game. With this project I get to exercise my programming skills, create a tool to streamline hand analysis and cement my poker knowledge along the way.
