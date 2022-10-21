@@ -8,7 +8,7 @@
 
 ## Motivation:
 
-### I like playing poker - specifically No Limit Hold'em. I record my games so I can go back, analyze my decisions and improve my game. With this project I get to exercise my programming skills, create a tool to streamline hand analysis and cement my poker knowledge along the way.
+### I like playing poker - specifically No Limit Hold'em. I record my games so I can go back, analyze my decisions and improve my game. With this project I hope to exercise my programming skills, create a tool to streamline hand analysis and cement my poker knowledge along the way.
 
 ## What I've Got:
 
