@@ -22,5 +22,5 @@
 
 ### I also think my current function returning the odds of making your draw may be technically incorrect but practically close enough. To simplify the function I used some logical and statistical sleight of hand and I have yet to check whether it is really equivalent to the true odds.
 
-
+### I also figure I can combine all of my current functions into one function taking the pot size, my outs, present and future bets plus the current street(preflop, flop, turn, river) and returning a complete rundown of my odds and whether a call is justified. This won't be too hard so it's next on my list.
 
