@@ -12,9 +12,9 @@
 
 ## What I've Got:
 
-### A block of code that generates every possible combination of boards and hole cards for a heads-up(1v1) hand.
+- A block of code that generates every possible combination of boards and hole cards for a heads-up(1v1) hand.
 
-### Functions returning pot odds, implied odds, effective odds, your odds of making a draw and whether a call is justified based on these statistics.
+- Functions returning pot odds, implied odds, effective odds, your odds of making a draw and whether a call is justified based on these statistics.
 
 ## Current Problems and Potential Improvements
 
