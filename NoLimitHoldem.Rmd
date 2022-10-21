@@ -1,0 +1,258 @@
+---
+title: "No Limit Hold'em"
+output: html_notebook
+---
+
+----SANDBOX----
+
+pot_odds(pot, bet)
+implied_odds(pot, bet, future_profit)
+effective_odds(street, pot, preflop_bet, flop_bet, turn_bet, river_bet)
+your_odds(street, one_draw_outs, two_draw_outs)
+call_test(pot_odd, imp_odd, eff_odd, your_odd)
+
+
+```{r}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+LOAD LIBRARIES AND DEFINE CARDS 
+
+```{r}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(stringr)
+
+
+#defining cards
+
+cards <- c('2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad', '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', 'Tc', 'Jc', 'Qc', 'Kc', 'Ac', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As')
+```
+
+GENERATE POSSIBLE HOLE HANDS FOR TWO PLAYERS
+
+```{r}
+
+#generating your hands
+
+hero_hands <- expand.grid(cards, cards)
+
+hero_hands <- hero_hands %>%
+  rename(hero.hand1 = Var1, hero.hand2 = Var2)
+
+hero_hands <- hero_hands %>%
+  filter(hero.hand1 != hero.hand2)
+
+head(hero_hands)
+
+#generating opponent's hands
+
+vil_hands <- expand.grid(cards, cards)
+
+vil_hands <- vil_hands %>%
+  rename(vil.hand1 = Var1, vil.hand2 = Var2)
+
+vil_hands <- vil_hands %>%
+  filter(vil.hand1 != vil.hand2)
+
+head(vil_hands)
+
+#generating all combinations of your hands and opponent's hands
+
+hole_hands <- crossing(hero_hands, vil_hands)
+
+hole_hands <- hole_hands %>%
+  filter(hero.hand1 != vil.hand1, hero.hand1 != vil.hand2, hero.hand2 != vil.hand1, hero.hand2 != vil.hand2)
+
+```
+
+GENERATE POSSIBLE BOARDS 
+
+```{r}
+
+#generating flops
+
+flops <- expand.grid(cards, cards, cards) 
+
+flops <- flops %>%
+  rename(flop1 = Var1, flop2 = Var2, flop3 = Var3)
+
+flops <- flops %>%
+  filter(flop1 != flop2, flop1 != flop3, flop2 != flop3)
+
+head(flops)
+
+#generating turns
+
+turns <- as.data.frame(cards)
+
+turns <- turns %>%
+  rename(turn = cards)
+
+head(turns)
+
+#generating all combinations of flops and turns
+
+flop_turns <- crossing(flops, turns)
+
+flop_turns <- flop_turns %>%
+  filter(flop1 != turn, flop2 != turn, flop3 != turn)
+
+#generating rivers
+
+rivers <- as.data.frame(cards)
+
+rivers <- rivers %>%
+  rename(river = cards)
+
+head(rivers)
+
+#generating all combinations of flops, turns, and rivers
+ 
+boards <- crossing(flop_turns, rivers)
+
+boards <- boards %>%
+  filter(flop1 != river, flop2 != river, flop3 != river, turn != river)
+
+```
+
+GENERATE ALL POSSIBLE HEADS UP HANDS
+
+```{r}
+
+#generating all combinations of boards and hole hands
+
+hands <- crossing(boards, hole_hands)
+
+```
+
+POT ODDS
+
+```{r}
+
+#define function
+
+pot_odds <- function(pot, bet) {
+  pot_odd = (bet / pot) * 100
+  return(pot_odd)
+}
+
+#e.x "there is $100 in the pot and opponent bets $20
+
+pot_odds(100,20)
+
+```
+
+EFFECTIVE ODDS
+
+```{r}
+
+#define function
+
+effective_odds <- function(street, pot, preflop_bet, flop_bet, turn_bet, river_bet) {
+  if (street == 'preflop') {eff_odds = ((preflop_bet + flop_bet + turn_bet + river_bet) / (pot + preflop_bet + flop_bet + turn_bet + river_bet)) * 100}
+  if (street == 'flop') {eff_odds = ((flop_bet + turn_bet + river_bet) / (pot + flop_bet + turn_bet + river_bet)) * 100}
+  if (street == 'turn') {eff_odds = ((turn_bet + river_bet) / (pot + turn_bet + river_bet)) * 100}
+  return(eff_odds)
+}
+
+#e.x. "there is $100 in the pot at the moment and three more $20 betting rounds"
+
+effective_odds('flop', 100, 0, 20, 20, 20)
+
+```
+
+IMPLIED ODDS
+
+```{r}
+
+implied_odds <- function(pot, bet, future_profit) {
+  imp_odds = (bet / (pot + future_profit)) * 100
+  return(imp_odds)
+  }
+
+#e.x. "there is $50 in the pot and it is $10 to you and you should average about $100 further profit when you make your hand"
+
+implied_odds(50, 10, 100)
+
+```
+
+YOUR ODDS
+
+
+```{r}
+
+your_odds <- function(street, one_draw_outs, two_draw_outs) {
+  if (street == 'flop') {deck = 47}
+  if (street == 'turn') {deck = 46}
+  one_draw_odds = length(one_draw_outs) / deck
+  two_draw_odds = (length(two_draw_outs) / deck) * ((length(two_draw_outs) - 1) / (deck - 1))
+  draw_overlap = intersect(one_draw_outs, two_draw_outs)
+  draw_overlap_odds = length(draw_overlap) / deck
+  odds = ((one_draw_odds + two_draw_odds) - draw_overlap_odds) * 100
+  return(odds)
+}
+
+#have AsJs, need an backdoor spade flush, a king, queen, or ace to win
+
+your_odds('flop', c('Ks', 'Kc', 'Kd', 'Kh', 'Qs', 'Qc', 'Qd', 'Kd', 'Ad', 'Ac', 'Ah'), c('Ks', 'Qs', 'Ts', '9s', '8s', '7s', '6s', '5s', '4s', '3s', '2s'))
+
+
+```
+SHOULD YOU CALL?
+
+```{r}
+
+call_test <- function(pot_odd, imp_odd, eff_odd, your_odd) {
+  if (your_odd >= pot_odd) {pot_odds_test = 'Yes :) ...'}
+  if (your_odd < pot_odd) {pot_odds_test = 'No :( ...'}
+  if (your_odd >= imp_odd) {imp_odds_test = 'Yes :) ...'}
+  if (your_odd < imp_odd) {imp_odds_test = 'No :( ...'}
+  if (your_odd >= eff_odd) {eff_odds_test = 'Yes :) ...'}
+  if (your_odd < eff_odd) {eff_odds_test = 'No :( ...'}
+  return(
+    paste('Good Pot Odds?', pot_odds_test) %>%
+      paste('Good Implied Odds?') %>%
+      paste(imp_odds_test) %>%
+      paste('Good Effective odds?') %>%
+      paste(eff_odds_test)
+  )
+}
+#pot odds 20, effective odds 37.5, implied odds 6.667, your odds 24.24
+
+call_test(20, 6.667, 37.5, 24.24)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
