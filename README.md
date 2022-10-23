@@ -20,8 +20,8 @@
 
 ## Current Problems and Potential Improvements
 
-### I originally intended to generate a dataframe containing every possible combination of hands and boards, which I would then use in a function inputing your hand plus your opponents' hands and returning everyone's odds of winning pre-flop. However, the resulting dataframe was too large for R - the possibilities are in the billions. So I'll be looking into integrating SQL to work with this much data.
+### I intend to generate a dataframe containing every possible combination of hands and boards, which I would then use in a function inputing your hand plus your opponents' hands and returning everyone's odds of winning pre-flop. However, the resulting dataframe was too large for R - the possibilities are in the billions. So I'll be looking into integrating SQL to work with this much data.
 
-### My current function returning the odds of making your draw is technically incorrect but practically close enough at the moment. To simplify the function I used some logical sleight of hand which ends up overestimating your odds in some more complicated situations - for instance, when you have both a backdoor flush and backdoor straight draw.
+### My current function returning the odds of making your draw is technically incorrect but practically close enough at the moment. To simplify the function I used some logical sleight of hand which ends up overestimating your odds in some more complicated situations - for instance, when you have both a backdoor flush and backdoor straight draw. Fixing this is my current priority.
 
-### I figure I can combine all of my current functions into one function taking the pot size, my outs, present and future bets plus the current street(preflop, flop, turn, or river) and returning a complete rundown of my odds and whether a call is justified. This shouldn't be too hard so it's next on my list.
+### I figure I can combine all of my current functions into one which takes the pot size, my outs, present and future bets plus the current street(preflop, flop, turn, or river) as arguments and returns a complete rundown of my odds and whether a call is justified. 
