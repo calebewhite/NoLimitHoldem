@@ -12,16 +12,21 @@
 
 ## What I've Got:
 
-- A block of code that generates every possible combination of boards and hole cards for a heads-up(1v1) hand.
+- Function taking street(flop, turn), pot size, your outs, and bet sizes which returns various odds and whether calling a bet for a draw is justified
 
-- Functions returning pot odds, implied odds, effective odds, your odds of making a draw and whether a call is justified based on these statistics.
+- Function taking your hand, the table limit and your stack size which returns your hand's Slansky-Chubukov value and whether it makes sense to go all-in preflop
 
-- Function returning the Slansky-Chubukov number of your hand for the table's limit
+## Planned Additions
 
-## Current Problems and Potential Improvements
+### Range Analysis Function: 
+###I could potentially construct general fold/call/bet/raise frequences for all hands and then create a function taking an opponent's action on each street as arguments and returning a vector of hands where the observed actions are within some sort of confidence interval of assumed frequencies
 
-### I intend to generate a dataframe containing every possible combination of hands and boards, which I would then use in a function inputing your hand plus your opponents' hands and returning everyone's odds of winning pre-flop. However, the resulting dataframe was too large for R - the possibilities are in the billions. So I'll be looking into integrating SQL to work with this much data.
+### 1v1 Win % Calculator
+### I could generate all possible hand combinations for two players as well as all possible boards, and then write a function returning the % of all hands that each would win
 
-### My current function returning the odds of making your draw is technically incorrect but practically close enough at the moment. To simplify the function I used some logical sleight of hand which ends up overestimating your odds in some more complicated situations - for instance, when you have both a backdoor flush and backdoor straight draw. Fixing this is my current priority.
+## Current Challenges
 
-### I figure I can combine all of my current functions into one which takes the pot size, my outs, present and future bets plus the current street(preflop, flop, turn, or river) as arguments and returns a complete rundown of my odds and whether a call is justified. 
+### Generating all possible combinations of two hands and the board is too large for R. The resulting dataframe is larger than 2.1 billion rows. I anticipate involving SQL in the project to host the data.
+
+### My current formulas for the odds of making your hand based on your outs are inaccurate when it comes to two-card draws like backdoor straights and backdoor flushes, especially when you have BOTH a backdoor straight and a backdoor flush draw. Calculating this as conveniently and accurately as possible is my current piority before moving on to the 1v1 Win % Calculator.
+
