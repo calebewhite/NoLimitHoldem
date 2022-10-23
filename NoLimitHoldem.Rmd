@@ -10,18 +10,10 @@ implied_odds(pot, bet, future_profit)
 effective_odds(street, pot, preflop_bet, flop_bet, turn_bet, river_bet)
 your_odds(street, one_draw_outs, two_draw_outs)
 call_test(pot_odd, imp_odd, eff_odd, your_odd)
+slansky_num(hand, big_blind)
 
 
 ```{r}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -215,7 +207,7 @@ your_odds <- function(street, one_draw_outs, two_draw_outs) {
 
 #have AsJs, need an backdoor spade flush, a king, queen, or ace to win
 
-your_odds('flop', c('Ks', 'Kc', 'Kd', 'Kh', 'Qs', 'Qc', 'Qd', 'Kd', 'Ad', 'Ac', 'Ah'), c('Ks', 'Qs', 'Ts', '9s', '8s', '7s', '6s', '5s', '4s', '3s', '2s'))
+your_odds('flop', c('Ks', 'Kc', 'Kd', 'Kh', 'Qs', 'Qc', 'Qd', 'Ad', 'Ac', 'Ah'), c('Ks', 'Qs', 'Ts', '9s', '8s', '7s', '6s', '5s', '4s', '3s', '2s'))
 
 
 ```
@@ -245,6 +237,26 @@ call_test(20, 6.667, 37.5, 24.24)
 
 ```
 
+Slansky-Chubukov Numbers
+
+```{r}
+
+hands_sc <- read.csv('slansky_chubukov.csv')
+
+slansky_num <- function(your_hand, big_blind) {
+  hands <- hands_sc$hand
+  sc_nums <- hands_sc$slansky_chubukov_num
+  hand_num = which(hands == your_hand)
+  sc_num = sc_nums[hand_num]
+  sc_num_bb = sc_num / 2
+  move_in_num = sc_num_bb * big_blind
+  return(paste('Move All-In with less than $', move_in_num))
+}
+
+
+slansky_num('22', .05)
+
+```
 
 
 
