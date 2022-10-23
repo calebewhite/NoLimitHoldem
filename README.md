@@ -19,7 +19,7 @@
 ## Planned Additions
 
 ### Range Analysis Function: 
-###I could potentially construct general fold/call/bet/raise frequences for all hands and then create a function taking an opponent's action on each street as arguments and returning a vector of hands where the observed actions are within some sort of confidence interval of assumed frequencies
+### I could potentially construct general fold/call/bet/raise frequences for all hands and then create a function taking an opponent's action on each street as arguments and returning a vector of hands where the observed actions are within some sort of confidence interval of assumed frequencies
 
 ### 1v1 Win % Calculator
 ### I could generate all possible hand combinations for two players as well as all possible boards, and then write a function returning the % of all hands that each would win
