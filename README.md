@@ -12,7 +12,7 @@
 
 ## What I've Got:
 
-- Function taking street(flop, turn), pot size, your outs and bet sizes which returns various odds and whether calling a bet for a draw is justified.
+- Functions taking street(flop, turn), pot size, your outs and bet sizes which returns various odds and whether calling a bet for a draw is justified.
 
 - Function taking your hand, the table limit and your stack size which returns your hand's Slansky-Chubukov value and whether it makes sense to go all-in preflop.
 
