@@ -5,11 +5,21 @@ output: html_notebook
 
 ----SANDBOX----
 
-slansky(hand, big_blind, stack_size)
+slansky_chubukov(hand, big_blind, stack_size)
 draw_analysis(street, pot, outs[vector], flop_bet, turn_bet, river_bet)
-
+effective_odds(street, pot, preflop_bet, flop_bet, turn_bet, river_bet)
+pot_odds(pot, bet)
+implied_odds(pot, bet, future_profit)
+min_def_freq(pot, bet)
 
 ```{r}
+
+
+
+
+
+
+
 
 
 
@@ -32,30 +42,35 @@ library(readr)
 library(tidyr)
 library(stringr)
 
-
 #defining cards
 
 cards <- c('2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad', '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', 'Tc', 'Jc', 'Qc', 'Kc', 'Ac', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As')
 
-slansky <- function(your_hand, big_blind, stack_size) {
-  hands <- hands_sc$hand
-  sc_nums <- hands_sc$slansky_chubukov_num
+hands_2d <- read.csv('slansky_chubukov.csv')
+
+#Returns $ Amount with a stack size under which you can move all in with positive expected value
+
+slansky_chubukov <- function(your_hand, big_blind, stack_size) {
+  hands <- hands_2d$hand
+  sc_nums <- hands_2d$slansky_chubukov_num
   hand_num = which(hands == your_hand)
   sc_num = sc_nums[hand_num]
   sc_num_bb = sc_num / 2
   move_in_num = sc_num_bb * big_blind
-  if (move_in_num < stack_size) {return(writeLines(
-    c(paste(paste('=== Slansky-Chubukov All-In Value:', move_in_num), '==='),
-      '++ Consider Moving All-In... ++')))}
+  if (move_in_num > stack_size) {return(writeLines(
+    c(paste(paste('=== Slansky-Chubukov: Move All-In with less than:', round(move_in_num, 2)), '==='),
+      '++ Consider Shoving ++')))}
   else {return(writeLines(
-    c(paste(paste('== Slansky-Chubukov All-In Value:', move_in_num), '=='),
-      '-- Not a Clear Shove... --')))}
+    c(paste(paste('== Slansky-Chubukov: Move All-In with less than:', round(move_in_num, 2)), '=='),
+      '-- Not a Clear shove --')))}
 } 
+
+#Returns pot odds, implied odds, effective odds of potential call and future bets based on perceived outs and pot size
 
 draw_analysis <- function(street, pot, outs, flop_bet, turn_bet, river_bet) {
   if (street == 'flop') {
     deck = 47
-    pot_odds = (flop_bet / pot) * 100
+    pot_odds = (flop_bet / (pot + flop_bet)) * 100
     pot_odds2 = 100 / pot_odds
     eff_odds = ((flop_bet + turn_bet + river_bet) / (pot + flop_bet + turn_bet + river_bet)) * 100
     eff_odds2 = 100 / eff_odds
@@ -66,7 +81,7 @@ draw_analysis <- function(street, pot, outs, flop_bet, turn_bet, river_bet) {
   }
   if (street == 'turn') {
     deck = 46
-    pot_odds = (turn_bet / pot) * 100
+    pot_odds = (turn_bet / (pot + turn_bet)) * 100
     pot_odds2 = 100 / pot_odds
     eff_odds = ((turn_bet + river_bet) / (pot + turn_bet + river_bet)) * 100
     eff_odds2 = 100 / eff_odds
@@ -84,7 +99,7 @@ draw_analysis <- function(street, pot, outs, flop_bet, turn_bet, river_bet) {
   return(writeLines(c(
     paste(paste(paste(paste('=== Odds of making your hand:', round(hand_odds, digits = 2)), '% OR'), round(hand_odds2, digits = 2)), '- 1 ==='),
     '',
-    paste(paste(paste(paste('=== Pot Odds:', round(pot_odds, digits = 2)), '% OR'), pot_odds2), '- 1 ==='),
+    paste(paste(paste(paste('=== Pot Odds:', round(pot_odds, digits = 2)), '% OR'), round(pot_odds2, 2)), '- 1 ==='),
     pot_odds_test,
     '',
     paste(paste(paste(paste('=== Implied Odds:', round(imp_odds, digits = 2)), '% OR'), round(imp_odds2, digits =2)), '- 1 ==='),
@@ -95,17 +110,47 @@ draw_analysis <- function(street, pot, outs, flop_bet, turn_bet, river_bet) {
   ))
 }
 
+#Returns effective odds based on pot size, streetm potential call and future bets
 
+effective_odds <- function(street, pot, preflop_bet, flop_bet, turn_bet, river_bet) {
+  if (street == 'preflop') {eff_odds = ((preflop_bet + flop_bet + turn_bet + river_bet) / (pot + preflop_bet + flop_bet + turn_bet + river_bet)) * 100}
+  if (street == 'flop') {eff_odds = ((flop_bet + turn_bet + river_bet) / (pot + flop_bet + turn_bet + river_bet)) * 100}
+  if (street == 'turn') {eff_odds = ((turn_bet + river_bet) / (pot + turn_bet + river_bet)) * 100}
+  eff_odds2 = 100 / eff_odds
+  return(
+    paste('Effective Odds:', round(eff_odds, 2), '% or', round(eff_odds2, 2), '- 1')
+  )
+}
+
+#Returns pot odds based on pot size and potential call
+
+pot_odds <- function(pot, bet) {
+  pot_odd = (bet / (pot + bet)) * 100
+  pot_odd2 = 100 / pot_odd
+  return(
+    paste('Pot Odds:', round(pot_odd, 2), '% or ', round(pot_odd2, 2), '- 1')
+  )
+}
+
+#Returns implied odds based on current pot, potential call and future profits
+
+implied_odds <- function(pot, bet, future_profit) {
+  imp_odds = (bet / (pot + bet + future_profit)) * 100
+  imp_odds2 = 100 / imp_odds
+  return(
+    paste('Implied Odds:', round(imp_odds, 2), '% or', round(imp_odds2, 2), '- 1')
+  )
+}
+
+#Returns minimum defense frequency based on pot odds 
+
+min_def_freq <- function(pot, bet) {
+  freq = bet / (pot + bet)
+  calling_range = 1 - freq
+  return(paste('In general, call with the top', round(calling_range, 2), '% of your range.'))
+}
 
 ```
-
-
-
-
-
-
-
-
 
 GENERATE POSSIBLE HOLE HANDS FOR TWO PLAYERS
 
@@ -204,57 +249,6 @@ hands <- crossing(boards, hole_hands)
 
 ```
 
-POT ODDS
-
-```{r}
-
-#define function
-
-pot_odds <- function(pot, bet) {
-  pot_odd = (bet / pot) * 100
-  return(pot_odd)
-}
-
-#e.x "there is $100 in the pot and opponent bets $20
-
-pot_odds(100,20)
-
-```
-
-EFFECTIVE ODDS
-
-```{r}
-
-#define function
-
-effective_odds <- function(street, pot, preflop_bet, flop_bet, turn_bet, river_bet) {
-  if (street == 'preflop') {eff_odds = ((preflop_bet + flop_bet + turn_bet + river_bet) / (pot + preflop_bet + flop_bet + turn_bet + river_bet)) * 100}
-  if (street == 'flop') {eff_odds = ((flop_bet + turn_bet + river_bet) / (pot + flop_bet + turn_bet + river_bet)) * 100}
-  if (street == 'turn') {eff_odds = ((turn_bet + river_bet) / (pot + turn_bet + river_bet)) * 100}
-  return(eff_odds)
-}
-
-#e.x. "there is $100 in the pot at the moment and three more $20 betting rounds"
-
-effective_odds('flop', 100, 0, 20, 20, 20)
-
-```
-
-IMPLIED ODDS
-
-```{r}
-
-implied_odds <- function(pot, bet, future_profit) {
-  imp_odds = (bet / (pot + future_profit)) * 100
-  return(imp_odds)
-  }
-
-#e.x. "there is $50 in the pot and it is $10 to you and you should average about $100 further profit when you make your hand"
-
-implied_odds(50, 10, 100)
-
-```
-
 HAND ODDS
 
 
@@ -278,91 +272,34 @@ your_odds('flop', c('Ks', 'Kc', 'Kd', 'Kh', 'Qs', 'Qc', 'Qd', 'Qh', 'Ad', 'Ac', 
 
 ```
 
-Slansky-Chubukov 
+HAND PROBABILITY/FREQUENCY CONSTRUCTION
 
 ```{r}
 
-slansky <- function(your_hand, big_blind, stack_size) {
-  hands <- hands_sc$hand
-  sc_nums <- hands_sc$slansky_chubukov_num
-  hand_num = which(hands == your_hand)
-  sc_num = sc_nums[hand_num]
-  sc_num_bb = sc_num / 2
-  move_in_num = sc_num_bb * big_blind
-  if (move_in_num < stack_size) {return(writeLines(
-    c(paste(paste('== Slansky-Chubukov All-In Value:', move_in_num), '=='),
-      '== Consider Moving All-In... ==')))}
-  else {return(writeLines(
-    c(paste(paste('== Slansky-Chubukov All-In Value:', move_in_num), '=='),
-      '== Not a Clear Shove... ==')))}
-} 
+two_value_combos <- c('3h', '3s', '3d', '3c', '2c', '2d', '3s', '3h')
+
+
+off_n_suited <- expand.grid(two_value_combos, two_value_combos) %>%
+  rename(card1 = Var1, card2 = Var2) %>%
+  filter(card1 != card2) %>%
+  filter(substr(card1, 1, 1) != substr(card2, 1, 1))
+
+suited_combos <- off_n_suited %>%
+  filter(substr(card1, 2, 2) == substr(card2, 2,2))
+
+offsuit_combos <- off_n_suited %>%
+  filter(substr(card1, 2, 2) != substr(card2, 2,2))
+
+pct_offsuit = (count(offsuit_combos) / count(off_n_suited)) * 100
+
+pct_suited = (count(suited_combos) / count(off_n_suited)) * 100
+
+print(pct_offsuit)
+print(pct_suited)
+  
 
 ```
 
-Hand Odds v2
-
-```{r}
-
-your_odds <- function(street, outs) {
-  if (street == 'flop') {deck = 47}
-  if (street == 'turn') {deck = 46}
-  odds = length(outs) / deck * 100
-  return(odds)
-}
-
-```
-
-Complete Hand Odds Analyzer
-
-```{r}
-
-call_analysis <- function(street, pot, outs, flop_bet, turn_bet, river_bet) {
-  if (street == 'flop') {
-    deck = 47
-    pot_odds = (flop_bet / pot) * 100
-    pot_odds2 = 100 / pot_odds
-    eff_odds = ((flop_bet + turn_bet + river_bet) / (pot + flop_bet + turn_bet + river_bet)) * 100
-    eff_odds2 = 100 / eff_odds
-    imp_odds = (flop_bet / (pot + flop_bet + turn_bet + river_bet)) * 100
-    imp_odds2 = 100 / imp_odds
-    hand_odds = (length(outs) / deck) * 100
-    hand_odds2 = 100 / hand_odds
-  }
-  if (street == 'turn') {
-    deck = 46
-    pot_odds = (turn_bet / pot) * 100
-    pot_odds2 = 100 / pot_odds
-    eff_odds = ((turn_bet + river_bet) / (pot + turn_bet + river_bet)) * 100
-    eff_odds2 = 100 / eff_odds
-    imp_odds = (turn_bet / (pot + turn_bet + river_bet)) * 100
-    imp_odds2 = 100 / imp_odds
-    hand_odds = (length(outs) / deck) * 100
-    hand_odds2 = 100 / hand_odds
-  }
-  if (hand_odds >= pot_odds) {pot_odds_test = '++ Worth a Call by Pot Odds ++'}
-  if (hand_odds < pot_odds) {pot_odds_test = '-- NOT Worth a Call by Pot Odds --'}
-  if (hand_odds >= imp_odds) {imp_odds_test = '++ Worth a Call by Implied Odds ++'}
-  if (hand_odds < imp_odds) {imp_odds_test = '-- NOT Worth a Call by Implied Odds --'}
-  if (hand_odds >= eff_odds) {eff_odds_test = '++ Worth a Call by Effective odds ++'}
-  if (hand_odds < eff_odds) {eff_odds_test = '-- NOT Worth a Call by Effective Odds --'}
-  return(writeLines(c(
-    paste(paste(paste(paste('=== Odds of making your hand:', round(hand_odds, digits = 2)), '% OR'), round(hand_odds2, digits = 2)), '- 1 ==='),
-    '',
-    paste(paste(paste(paste('=== Pot Odds:', round(pot_odds, digits = 2)), '% OR'), pot_odds2), '- 1 ==='),
-    pot_odds_test,
-    '',
-    paste(paste(paste(paste('=== Implied Odds:', round(imp_odds, digits = 2)), '% OR'), round(imp_odds2, digits =2)), '- 1 ==='),
-    imp_odds_test,
-    '',
-    paste(paste(paste(paste('=== Effective Odds:', round(eff_odds, digits = 2)), '% OR'), round(eff_odds2, digits = 2)), '- 1 ==='),
-    eff_odds_test)
-  ))
-}
-
-
-call_analysis('turn', 100, c('Ts', '9s', '8s', '7s', '6s', '5s', '4s', '3s', '2s'), 0, 20, 70)
-
-```
 
 
 
