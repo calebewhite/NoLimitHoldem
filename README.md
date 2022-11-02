@@ -12,19 +12,19 @@
 
 ## What I've Got:
 
-- Functions taking street(flop, turn), pot size, your outs and bet sizes which returns various odds and whether calling a bet for a draw is justified.
+- Functions taking street(flop, turn), pot size, your outs and bet sizes which returns various odds and whether calling a bet is justified.
 
-- Function taking your hand, the table limit and your stack size which returns your hand's Slansky-Chubukov value and whether it makes sense to go all-in preflop.
+- Function taking your hand, the table limit and your stack size which returns your hand's Slansky-Chubukov value and whether it makes sense to get all-in preflop.
 
 ## Planned Additions:
 
-- Range Analysis Function: Construct general fold/call/bet/raise frequences for all hands and then create a function taking an opponent's action on each street as arguments and returning a vector of hands where the combination observed actions are within some sort of confidence interval of assumed frequencies.
+- Range Analysis Functions: Construct general fold/call/bet/raise frequences for all hands and then create a function taking an opponent's action on each street as arguments and returning a vector of hands where the combination of observed actions are within some sort of confidence interval of assumed frequencies.
 
-- 1v1 Win % Calculator: Generate all possible hand combinations for two players as well as all possible boards, and then write a function returning the % of all hands that each would win.
+- Equity Calculator: Function returning your win % based on a matchup of hands or your outs.
 
 ## Current Challenges:
 
 - Generating all possible combinations of two hands and the board is too large for R. The resulting dataframe is larger than 2.1 billion rows. I anticipate involving SQL in the project to host the data.
 
-- My current formulas for the odds of making your hand based on your outs are inaccurate when it comes to two-card draws like backdoor straights and backdoor flushes, especially when you have BOTH a backdoor straight and a backdoor flush draw. Calculating this as conveniently and accurately as possible is my current priority before moving on to the 1v1 Win % Calculator.
+- My current formulas for the odds of making your hand based on your outs are inaccurate when it comes to two-card draws like backdoor straights and backdoor flushes, especially when you have BOTH a backdoor straight and a backdoor flush draw. Calculating this as conveniently and accurately as possible is a priority.
 
