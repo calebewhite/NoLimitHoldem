@@ -8,7 +8,7 @@
 
 ## Background:
 
-- I like playing poker, specifically No Limit Hold'em. I record myself so I can go back, analyze my decisions and improve my game. With this project I hope to exercise my programming skills, create a tool streamlining hand analysis and cement my poker knowledge along the way. Some functions are even convenient enough to consult mid-game and have directly resulted in profitable decisions.
+- I like playing poker, specifically No Limit Hold'em. I record myself so I can go back, analyze my decisions and improve my game. With this project I hope to exercise my programming skills, create a tool streamlining hand analysis and cement my poker knowledge along the way. Some functions are even convenient enough to consult mid-game and have directly resulted in profitable decisions for me.
 
 ## What I've Got:
 
